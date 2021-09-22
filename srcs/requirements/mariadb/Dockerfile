@@ -1,18 +1,18 @@
-FROM alpine:3.12
+   
+FROM alpine:3.11
 
 RUN apk update && \
-    apk add mariadb mariadb-client
-RUN mysql_install_db \
-    --user=mysql      \
-    --datadir=/var/lib/mysql \
-    --auth-root-authentication-method=normal
+	apk add --no-cache mariadb mariadb-client
 
-# RUN adduser hnabil
+RUN mkdir -p /run/mysqld && \
+	chown -R mysql:mysql /run/mysqld /var/lib/mysql
+
+RUN mysql_install_db --user=mysql --datadir=/var/lib/mysql
+
 COPY ./conf/my.cnf /etc/
-COPY ./conf/entrypoint.sh /
+COPY ./conf/entrypoint.sh /usr/local/bin/
 
 EXPOSE 3306
 
-ENTRYPOINT ["./entrypoint.sh"]
-
-CMD ["/usr/bin/mysqld", "--user=mysql", "--skip-name-resolve" , "--init-file=/tmp/init" , "--debug-gdb"]
+ENTRYPOINT ["entrypoint.sh"]
+CMD ["/usr/bin/mysqld", "--user=mysql", "--init-file=/tmp/init"]
